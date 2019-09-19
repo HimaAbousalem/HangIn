@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">HangIN</string>
+    <string name="image">Image</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="forget_your_password">Forget your password?</string>
+    <string name="login">Login</string>
+    <string name="or">OR</string>
+    <string name="facebook">Facebook</string>
+    <string name="google">Google</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="connected">Connected!</string>
+    <string name="no_internet_connection">No internet connection!</string>
+</resources>
