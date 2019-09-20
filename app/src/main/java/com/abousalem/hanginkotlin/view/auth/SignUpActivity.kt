@@ -36,6 +36,8 @@ class SignUpActivity : BaseActivity() {
         setContentView(R.layout.activity_sign_up)
         getActivityComponent().inject(this)
         setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         authViewModel = ViewModelProvider(this, viewModelFactory)[AuthViewModel::class.java]
     }
 
