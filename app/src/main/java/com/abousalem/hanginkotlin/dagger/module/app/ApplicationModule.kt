@@ -23,8 +23,8 @@ class ApplicationModule(private val application: Application) {
     }
     @ApplicationScope
     @Provides
-    fun providesUserRepository(apiServices: ApiServices):IAuthenticationRepository{
-        return UserRepository(apiServices)
+    fun providesUserRepository(apiServices: ApiServices, sharedPreferences: SharedPreferences):IAuthenticationRepository{
+        return UserRepository(apiServices, sharedPreferences)
     }
 
     @ApplicationScope

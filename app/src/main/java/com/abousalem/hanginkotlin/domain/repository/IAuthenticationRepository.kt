@@ -8,4 +8,7 @@ import io.reactivex.Observable
 interface IAuthenticationRepository{
     fun registerUser(signUpRequest: SignUpRequest): Observable<AuthResponse>
     fun signInUser(signInRequest: SignInRequest): Observable<AuthResponse>
+    fun saveUserAuthToken(userToken: AuthResponse)
+    fun getUserAuthToken(): String
+
 }

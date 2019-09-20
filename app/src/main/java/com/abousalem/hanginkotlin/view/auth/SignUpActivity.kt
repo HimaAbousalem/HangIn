@@ -2,10 +2,11 @@ package com.abousalem.hanginkotlin.view.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.abousalem.hanginkotlin.R
-import com.abousalem.hanginkotlin.entities.request.SignInRequest
+import com.abousalem.hanginkotlin.entities.request.SignUpRequest
 import com.abousalem.hanginkotlin.entities.response.AuthResponse
 import com.abousalem.hanginkotlin.entities.state.ErrorState
 import com.abousalem.hanginkotlin.entities.state.LoadingState
@@ -19,11 +20,11 @@ import com.abousalem.hanginkotlin.view.main.MainActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_sign_up.*
 import timber.log.Timber
 import javax.inject.Inject
 
-class LoginActivity : BaseActivity() {
+class SignUpActivity : BaseActivity() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvidersFactory
@@ -32,53 +33,66 @@ class LoginActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_sign_up)
         getActivityComponent().inject(this)
+        setSupportActionBar(toolbar)
         authViewModel = ViewModelProvider(this, viewModelFactory)[AuthViewModel::class.java]
     }
 
     override fun onStart() {
         super.onStart()
-        loginButton.setOnClickListener {
-            validateAndSignIn()
-        }
-        loginNewAccountTV.setOnClickListener{
-            startActivity(Intent(this, SignUpActivity::class.java))
+        registerCreateAccountBT.setOnClickListener {
+            validateAndSignUp()
         }
     }
 
-    private fun validateAndSignIn() {
+    private fun validateAndSignUp() {
         hideKeyboard()
 
-        val email = loginEmailET.text?.toString()?.trim()
-        val password = loginPasswordET.text?.toString()?.trim()
+        val firstName = registerFirstNameET.text?.toString()?.trim()
+        val lastName = registerLastNameET.text?.toString()?.trim()
+        val email = registerEmailET.text?.toString()?.trim()
+        val phone = registerPhoneNumberET.text?.toString()?.trim()
+        val password = registerPasswordET.text?.toString()?.trim()
+        val confirmPassword = registerConfirmPassET.text?.toString()?.trim()
 
-        if(email!!.isEmpty()||password!!.isEmpty())return
+        if(email!!.isEmpty()||password!!.isEmpty()||firstName!!.isEmpty()
+            ||lastName!!.isEmpty()||confirmPassword!!.isEmpty()||phone!!.isEmpty()){
+            toast("Please Fill all Fields!")
+            return
+        }
+
+        if(password != confirmPassword){
+            toast("Password and Confirm Password Not matching")
+            return
+        }
+
         if(!isOnline()) {
             toast("No Internet Connection!")
             return
         }
 
-        val user = SignInRequest(email = email, password = password)
+        val user = SignUpRequest(firstName = firstName, lastName = lastName, email = email,
+            password = password, phoneNumber = phone)
 
-        disposable?.add(authViewModel.signInUser(user)
+        disposable?.add(authViewModel.registerUser(user)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe( {when(it) {
                 is LoadingState ->{
                     if(it.loading) {
-                        loginPB.visibility = View.VISIBLE
+                        registerPB.visibility = View.VISIBLE
                         Timber.d("I'm Loading")
                     }else {
-                        loginPB.visibility = View.GONE
+                        registerPB.visibility = View.GONE
                         Timber.d("I'm done Loading")
                     }
                 }
-                is ErrorState->{
+                is ErrorState ->{
                     toast(it.message)
                     Timber.d("I'm error State ${it.message}")
                 }
-                is SuccessState->{
+                is SuccessState ->{
                     Timber.d("I'm Success State ${it.data?.authToken}")
                     saveToSharedPref(it.data)
                     startActivity(Intent(this, MainActivity::class.java))
@@ -92,5 +106,12 @@ class LoginActivity : BaseActivity() {
     override fun onStop() {
         super.onStop()
         disposable?.clear()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == android.R.id.home){
+            onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
